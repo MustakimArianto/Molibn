@@ -1,6 +1,7 @@
 package com.mustakimarianto.molibn
 
 import android.content.Context
+import android.os.Build
 import com.mustakimarianto.molibn.model.FeatureModel
 import com.mustakimarianto.molibn.model.MolibnConfigModel
 import kotlinx.coroutines.flow.Flow
@@ -84,6 +85,15 @@ class Molibn private constructor(config: MolibnConfigModel) {
      */
     fun getDisabledFeatures(): List<FeatureModel> {
         return featureState.filter { !it.enabled }.toList()
+    }
+
+    fun getSupportedApiLevel(featureName: String): List<Int> {
+        return featureState.firstOrNull { it.name == featureName }?.supportedApiLevels
+            ?: emptyList()
+    }
+
+    fun isSupportedApiLevel(featureName: String): Boolean {
+        return getSupportedApiLevel(featureName).contains(Build.VERSION.SDK_INT)
     }
 
     /**
