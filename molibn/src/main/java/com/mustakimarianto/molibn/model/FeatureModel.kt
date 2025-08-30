@@ -3,5 +3,5 @@ package com.mustakimarianto.molibn.model
 data class FeatureModel(
     val name: String,
     val enabled: Boolean,
-    val supportedApiLevels: List<Int>
+    val condition: ConditionModel
 )

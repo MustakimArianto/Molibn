@@ -1,7 +1,7 @@
 package com.mustakimarianto.molibn
 
 import android.content.Context
-import android.os.Build
+import android.os.Build.VERSION
 import com.mustakimarianto.molibn.model.FeatureModel
 import com.mustakimarianto.molibn.model.MolibnConfigModel
 import kotlinx.coroutines.flow.Flow
@@ -87,13 +87,56 @@ class Molibn private constructor(config: MolibnConfigModel) {
         return featureState.filter { !it.enabled }.toList()
     }
 
-    fun getSupportedApiLevel(featureName: String): List<Int> {
-        return featureState.firstOrNull { it.name == featureName }?.supportedApiLevels
+    fun getSupportedApiLevel(featureName: String): List<String> {
+        return featureState.firstOrNull { it.name == featureName }?.condition?.supportedApiLevels
             ?: emptyList()
     }
 
     fun isSupportedApiLevel(featureName: String): Boolean {
-        return getSupportedApiLevel(featureName).contains(Build.VERSION.SDK_INT)
+        val supportedApiLevels = getSupportedApiLevel(featureName)
+        if (supportedApiLevels.isEmpty()) return true // no restriction → allow by default
+
+        val currentSdk = VERSION.SDK_INT
+
+        return supportedApiLevels.any { apiLevels ->
+            when {
+                apiLevels.startsWith(">=") -> {
+                    val min = apiLevels.removePrefix(">=").trim().toIntOrNull()
+                    min != null && currentSdk >= min
+                }
+
+                apiLevels.startsWith(">") -> {
+                    val min = apiLevels.removePrefix(">").trim().toIntOrNull()
+                    min != null && currentSdk > min
+
+                }
+
+                apiLevels.startsWith("<=") -> {
+                    val max = apiLevels.removePrefix("<=").trim().toIntOrNull()
+                    max != null && currentSdk <= max
+                }
+
+                apiLevels.startsWith("<") -> {
+                    val max = apiLevels.removePrefix("<").trim().toIntOrNull()
+                    max != null && currentSdk < max
+                }
+
+                "-" in apiLevels -> {
+                    val parts = apiLevels.split("-").mapNotNull { it.trim().toIntOrNull() }
+                    if (parts.size == 2) {
+                        val (min, max) = parts
+                        currentSdk in min..max
+                    } else {
+                        false
+                    }
+                }
+
+                else -> {
+                    val exact = apiLevels.trim().toIntOrNull()
+                    exact != null && currentSdk == exact
+                }
+            }
+        }
     }
 
     /**

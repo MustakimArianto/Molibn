@@ -3,6 +3,7 @@ package com.mustakimarianto.molibndemo
 import android.app.Application
 import android.util.Log
 import com.mustakimarianto.molibn.Molibn
+import com.mustakimarianto.molibn.model.ConditionModel
 import com.mustakimarianto.molibn.model.FeatureModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,12 +22,10 @@ class App : Application() {
 
         val features = mutableListOf(
             FeatureModel(
-                "feature1",
-                true,
-                listOf(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36)
+                "feature1", true, ConditionModel(listOf(">=29"))
             ),
-            FeatureModel("feature2", false, listOf(28, 29, 30, 31, 32)),
-            FeatureModel("feature3", true, listOf(32))
+            FeatureModel("feature2", false, ConditionModel(listOf("<=29"))),
+            FeatureModel("feature3", true, ConditionModel(listOf("32-36")))
         )
 
         molibn = Molibn.Builder(context = applicationContext).setCacheEnabled(true).build()
@@ -42,23 +41,19 @@ class App : Application() {
             Log.d(TAG, "Feature 3 supported api: ${it.getSupportedApiLevel("feature3")}")
             Log.d(TAG, "Feature 4 supported api: ${it.getSupportedApiLevel("feature4")}")
             Log.d(
-                TAG,
-                "Is current device supported feature 1: ${it.isSupportedApiLevel("feature1")}"
+                TAG, "Is current device supported feature 1: ${it.isSupportedApiLevel("feature1")}"
             )
             Log.d(
-                TAG,
-                "Is current device supported feature 2: ${it.isSupportedApiLevel("feature2")}"
+                TAG, "Is current device supported feature 2: ${it.isSupportedApiLevel("feature2")}"
             )
             Log.d(
-                TAG,
-                "Is current device supported feature 3: ${it.isSupportedApiLevel("feature3")}"
+                TAG, "Is current device supported feature 3: ${it.isSupportedApiLevel("feature3")}"
             )
             Log.d(
-                TAG,
-                "Is current device supported feature 4: ${it.isSupportedApiLevel("feature4")}"
+                TAG, "Is current device supported feature 4: ${it.isSupportedApiLevel("feature4")}"
             )
             Log.d(TAG, "Adding feature 4")
-            it.saveSingleFeature(FeatureModel("feature4", false, listOf(31, 32, 33, 34)))
+            it.saveSingleFeature(FeatureModel("feature4", false, ConditionModel(listOf("<29"))))
             Log.d(TAG, "Get feature 4: ${it.getFeature("feature4")}")
             Log.d(TAG, "Get non-existent feature: ${it.getFeature("feature5")}")
             Log.d(TAG, "Is non-existent feature enabled: ${it.getFeature("feature5")}")
@@ -76,9 +71,9 @@ class App : Application() {
 
                 launch {
                     delay(3000)
-                    it.updateFeature(FeatureModel("feature4", true, listOf(33, 34)))
+                    it.updateFeature(FeatureModel("feature4", true, ConditionModel(listOf("<29"))))
                     delay(3000)
-                    it.updateFeature(FeatureModel("feature4", false, listOf(34)))
+                    it.updateFeature(FeatureModel("feature4", false, ConditionModel(listOf("<29"))))
                 }
             }
             it.clearAllFlags()
