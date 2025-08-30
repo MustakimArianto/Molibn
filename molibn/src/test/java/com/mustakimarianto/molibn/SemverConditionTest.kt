@@ -1,19 +1,13 @@
 package com.mustakimarianto.molibn
 
-import com.mustakimarianto.molibn.core.SdkProvider
 import com.mustakimarianto.molibn.model.ConditionModel
 import com.mustakimarianto.molibn.model.FeatureModel
 import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue
-import org.junit.Before
 import org.junit.Test
 
-class ApiLevelConditionTest : BaseMolibnTest() {
-
-    @Before
-    fun setup() {
-        SdkProvider.sdkInt = 29
-    }
+class SemverConditionTest : BaseMolibnTest() {
+    private val currentVersion = "1.0.0"
 
     @Test
     fun `return true for greater than or equal condition`() {
@@ -23,13 +17,13 @@ class ApiLevelConditionTest : BaseMolibnTest() {
                 name = featureName,
                 enabled = true,
                 condition = ConditionModel(
-                    supportedApiLevels = listOf(">=23"),
-                    supportedAppVersions = listOf()
+                    supportedApiLevels = listOf(),
+                    supportedAppVersions = listOf(">=1.0.0")
                 )
             )
 
             saveSingleFeature(model)
-            assertTrue(isSupportedApiLevel(featureName))
+            assertTrue(isSupportedAppVersion(featureName, currentVersion))
         }
     }
 
@@ -41,13 +35,13 @@ class ApiLevelConditionTest : BaseMolibnTest() {
                 name = featureName,
                 enabled = true,
                 condition = ConditionModel(
-                    supportedApiLevels = listOf(">=30"),
-                    supportedAppVersions = listOf()
+                    supportedApiLevels = listOf(),
+                    supportedAppVersions = listOf(">=1.0.1")
                 )
             )
 
             saveSingleFeature(model)
-            assertFalse(isSupportedApiLevel(featureName))
+            assertFalse(isSupportedAppVersion(featureName, currentVersion))
         }
     }
 
@@ -59,13 +53,13 @@ class ApiLevelConditionTest : BaseMolibnTest() {
                 name = featureName,
                 enabled = true,
                 condition = ConditionModel(
-                    supportedApiLevels = listOf(">23"),
-                    supportedAppVersions = listOf()
+                    supportedApiLevels = listOf(),
+                    supportedAppVersions = listOf(">0.9.0")
                 )
             )
 
             saveSingleFeature(model)
-            assertTrue(isSupportedApiLevel(featureName))
+            assertTrue(isSupportedAppVersion(featureName, currentVersion))
         }
     }
 
@@ -77,13 +71,13 @@ class ApiLevelConditionTest : BaseMolibnTest() {
                 name = featureName,
                 enabled = true,
                 condition = ConditionModel(
-                    supportedApiLevels = listOf(">29"),
-                    supportedAppVersions = listOf()
+                    supportedApiLevels = listOf(),
+                    supportedAppVersions = listOf("<0.9.0")
                 )
             )
 
             saveSingleFeature(model)
-            assertFalse(isSupportedApiLevel(featureName))
+            assertFalse(isSupportedAppVersion(featureName, currentVersion))
         }
     }
 
@@ -95,13 +89,13 @@ class ApiLevelConditionTest : BaseMolibnTest() {
                 name = featureName,
                 enabled = true,
                 condition = ConditionModel(
-                    supportedApiLevels = listOf("<=29"),
-                    supportedAppVersions = listOf()
+                    supportedApiLevels = listOf(),
+                    supportedAppVersions = listOf("<=1.0.0")
                 )
             )
 
             saveSingleFeature(model)
-            assertTrue(isSupportedApiLevel(featureName))
+            assertTrue(isSupportedAppVersion(featureName, currentVersion))
         }
     }
 
@@ -113,13 +107,13 @@ class ApiLevelConditionTest : BaseMolibnTest() {
                 name = featureName,
                 enabled = true,
                 condition = ConditionModel(
-                    supportedApiLevels = listOf("<=28"),
-                    supportedAppVersions = listOf()
+                    supportedApiLevels = listOf(),
+                    supportedAppVersions = listOf("<=0.9.0")
                 )
             )
 
             saveSingleFeature(model)
-            assertFalse(isSupportedApiLevel(featureName))
+            assertFalse(isSupportedAppVersion(featureName, currentVersion))
         }
     }
 
@@ -131,12 +125,12 @@ class ApiLevelConditionTest : BaseMolibnTest() {
                 name = featureName,
                 enabled = true,
                 condition = ConditionModel(
-                    supportedApiLevels = listOf("<30"),
-                    supportedAppVersions = listOf()
+                    supportedApiLevels = listOf(),
+                    supportedAppVersions = listOf("<1.0.1")
                 )
             )
             saveSingleFeature(model)
-            assertTrue(isSupportedApiLevel(featureName))
+            assertTrue(isSupportedAppVersion(featureName, currentVersion))
         }
     }
 
@@ -148,12 +142,13 @@ class ApiLevelConditionTest : BaseMolibnTest() {
                 name = featureName,
                 enabled = true,
                 condition = ConditionModel(
-                    supportedApiLevels = listOf("<29"),
-                    supportedAppVersions = listOf()
+                    supportedApiLevels = listOf(),
+                    supportedAppVersions = listOf("<1.0.0")
                 )
             )
+
             saveSingleFeature(model)
-            assertFalse(isSupportedApiLevel(featureName))
+            assertFalse(isSupportedAppVersion(featureName, currentVersion))
         }
     }
 
@@ -165,13 +160,13 @@ class ApiLevelConditionTest : BaseMolibnTest() {
                 name = featureName,
                 enabled = true,
                 condition = ConditionModel(
-                    supportedApiLevels = listOf("23-30"),
-                    supportedAppVersions = listOf()
+                    supportedApiLevels = listOf(),
+                    supportedAppVersions = listOf("0.9.0-1.0.0")
                 )
             )
 
             saveSingleFeature(model)
-            assertTrue(isSupportedApiLevel(featureName))
+            assertTrue(isSupportedAppVersion(featureName, currentVersion))
         }
     }
 
@@ -183,13 +178,13 @@ class ApiLevelConditionTest : BaseMolibnTest() {
                 name = featureName,
                 enabled = true,
                 condition = ConditionModel(
-                    supportedApiLevels = listOf("30-36"),
-                    supportedAppVersions = listOf()
+                    supportedApiLevels = listOf(),
+                    supportedAppVersions = listOf("1.1.0-1.2.0")
                 )
             )
 
             saveSingleFeature(model)
-            assertFalse(isSupportedApiLevel(featureName))
+            assertFalse(isSupportedAppVersion(featureName, currentVersion))
         }
     }
 
@@ -201,13 +196,13 @@ class ApiLevelConditionTest : BaseMolibnTest() {
                 name = featureName,
                 enabled = true,
                 condition = ConditionModel(
-                    supportedApiLevels = listOf("29"),
-                    supportedAppVersions = listOf()
+                    supportedApiLevels = listOf(),
+                    supportedAppVersions = listOf("1.0.0")
                 )
             )
 
             saveSingleFeature(model)
-            assertTrue(isSupportedApiLevel(featureName))
+            assertTrue(isSupportedAppVersion(featureName, currentVersion))
         }
     }
 
@@ -219,13 +214,13 @@ class ApiLevelConditionTest : BaseMolibnTest() {
                 name = featureName,
                 enabled = true,
                 condition = ConditionModel(
-                    supportedApiLevels = listOf("30"),
-                    supportedAppVersions = listOf()
+                    supportedApiLevels = listOf(),
+                    supportedAppVersions = listOf("1.1.0")
                 )
             )
 
             saveSingleFeature(model)
-            assertFalse(isSupportedApiLevel(featureName))
+            assertFalse(isSupportedAppVersion(featureName, currentVersion))
         }
     }
 }

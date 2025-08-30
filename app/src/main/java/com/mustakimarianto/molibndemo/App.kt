@@ -22,10 +22,18 @@ class App : Application() {
 
         val features = mutableListOf(
             FeatureModel(
-                "feature1", true, ConditionModel(listOf(">=29"))
-            ),
-            FeatureModel("feature2", false, ConditionModel(listOf("<=29"))),
-            FeatureModel("feature3", true, ConditionModel(listOf("32-36")))
+                "feature1", true, ConditionModel(
+                    supportedApiLevels = listOf(">=29"), supportedAppVersions = listOf(">=1.0.0")
+                )
+            ), FeatureModel(
+                "feature2", false, ConditionModel(
+                    supportedApiLevels = listOf("<=29"), supportedAppVersions = listOf(">=1.0.1")
+                )
+            ), FeatureModel(
+                "feature3", true, ConditionModel(
+                    supportedApiLevels = listOf("32-36"), supportedAppVersions = listOf(">=1.0.2")
+                )
+            )
         )
 
         molibn = Molibn.Builder(context = applicationContext).setCacheEnabled(true).build()
@@ -40,6 +48,10 @@ class App : Application() {
             Log.d(TAG, "Feature 2 supported api: ${it.getSupportedApiLevel("feature2")}")
             Log.d(TAG, "Feature 3 supported api: ${it.getSupportedApiLevel("feature3")}")
             Log.d(TAG, "Feature 4 supported api: ${it.getSupportedApiLevel("feature4")}")
+            Log.d(TAG, "Feature 1 supported version: ${it.getSupportedAppVersions("feature1")}")
+            Log.d(TAG, "Feature 2 supported version: ${it.getSupportedAppVersions("feature2")}")
+            Log.d(TAG, "Feature 3 supported version: ${it.getSupportedAppVersions("feature3")}")
+            Log.d(TAG, "Feature 4 supported version: ${it.getSupportedAppVersions("feature4")}")
             Log.d(
                 TAG, "Is current device supported feature 1: ${it.isSupportedApiLevel("feature1")}"
             )
@@ -52,8 +64,42 @@ class App : Application() {
             Log.d(
                 TAG, "Is current device supported feature 4: ${it.isSupportedApiLevel("feature4")}"
             )
+            Log.d(
+                TAG, "Is current version supported feature 1: ${
+                    it.isSupportedAppVersion(
+                        "feature1", "1.0.0"
+                    )
+                }"
+            )
+            Log.d(
+                TAG, "Is current version supported feature 2: ${
+                    it.isSupportedAppVersion(
+                        "feature2", "1.0.0"
+                    )
+                }"
+            )
+            Log.d(
+                TAG, "Is current version supported feature 3: ${
+                    it.isSupportedAppVersion(
+                        "feature3", "1.0.0"
+                    )
+                }"
+            )
+            Log.d(
+                TAG, "Is current version supported feature 4: ${
+                    it.isSupportedAppVersion(
+                        "feature4", "1.0.0"
+                    )
+                }"
+            )
             Log.d(TAG, "Adding feature 4")
-            it.saveSingleFeature(FeatureModel("feature4", false, ConditionModel(listOf("<29"))))
+            it.saveSingleFeature(
+                FeatureModel(
+                    "feature4", false, ConditionModel(
+                        supportedApiLevels = listOf("<29"), supportedAppVersions = listOf(">=1.0.4")
+                    )
+                )
+            )
             Log.d(TAG, "Get feature 4: ${it.getFeature("feature4")}")
             Log.d(TAG, "Get non-existent feature: ${it.getFeature("feature5")}")
             Log.d(TAG, "Is non-existent feature enabled: ${it.getFeature("feature5")}")
@@ -71,9 +117,23 @@ class App : Application() {
 
                 launch {
                     delay(3000)
-                    it.updateFeature(FeatureModel("feature4", true, ConditionModel(listOf("<29"))))
+                    it.updateFeature(
+                        FeatureModel(
+                            "feature4", true, ConditionModel(
+                                supportedApiLevels = listOf("<29"),
+                                supportedAppVersions = listOf(">=1.0.6")
+                            )
+                        )
+                    )
                     delay(3000)
-                    it.updateFeature(FeatureModel("feature4", false, ConditionModel(listOf("<29"))))
+                    it.updateFeature(
+                        FeatureModel(
+                            "feature4", false, ConditionModel(
+                                supportedApiLevels = listOf("<29"),
+                                supportedAppVersions = listOf(">=1.0.7")
+                            )
+                        )
+                    )
                 }
             }
             it.clearAllFlags()

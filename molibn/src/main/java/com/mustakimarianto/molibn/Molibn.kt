@@ -1,7 +1,7 @@
 package com.mustakimarianto.molibn
 
 import android.content.Context
-import android.os.Build.VERSION
+import com.mustakimarianto.molibn.condition.SemverEvaluator
 import com.mustakimarianto.molibn.core.SdkProvider
 import com.mustakimarianto.molibn.model.FeatureModel
 import com.mustakimarianto.molibn.model.MolibnConfigModel
@@ -137,6 +137,20 @@ class Molibn private constructor(config: MolibnConfigModel) {
                     exact != null && currentSdk == exact
                 }
             }
+        }
+    }
+
+    fun getSupportedAppVersions(featureName: String): List<String> {
+        return featureState.firstOrNull { it.name == featureName }?.condition?.supportedAppVersions
+            ?: emptyList()
+    }
+
+    fun isSupportedAppVersion(featureName: String, currentVersion: String): Boolean {
+        val supportedAppVersions = getSupportedAppVersions(featureName)
+        if (supportedAppVersions.isEmpty()) return true // no restriction → allow by default
+
+        return supportedAppVersions.any { versionRule ->
+            SemverEvaluator.evaluate(currentVersion, versionRule)
         }
     }
 
