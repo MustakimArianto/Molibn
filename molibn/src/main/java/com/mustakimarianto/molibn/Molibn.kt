@@ -2,6 +2,7 @@ package com.mustakimarianto.molibn
 
 import android.content.Context
 import android.os.Build.VERSION
+import com.mustakimarianto.molibn.core.SdkProvider
 import com.mustakimarianto.molibn.model.FeatureModel
 import com.mustakimarianto.molibn.model.MolibnConfigModel
 import kotlinx.coroutines.flow.Flow
@@ -96,7 +97,7 @@ class Molibn private constructor(config: MolibnConfigModel) {
         val supportedApiLevels = getSupportedApiLevel(featureName)
         if (supportedApiLevels.isEmpty()) return true // no restriction → allow by default
 
-        val currentSdk = VERSION.SDK_INT
+        val currentSdk = SdkProvider.sdkInt
 
         return supportedApiLevels.any { apiLevels ->
             when {
