@@ -140,11 +140,50 @@ class Molibn private constructor(config: MolibnConfigModel) {
         }
     }
 
+    /**
+     * Retrieve all supported app version conditions for a given feature.
+     *
+     * This method looks up a feature by its name and returns the list of semantic
+     * version constraints (e.g., `>=2.0.0`, `<3.0.0`, `1.2.3-beta`) that were
+     * defined in its [ConditionModel]. These constraints will later be evaluated
+     * by [SemverEvaluator] when checking if the current app version satisfies
+     * the feature's requirements.
+     *
+     * If the feature does not exist or has no app version conditions defined,
+     * this function returns an empty list.
+     *
+     * @param featureName the unique name of the feature flag to query.
+     * @return a list of semantic version conditions for the given feature,
+     *         or an empty list if none are defined.
+     */
     fun getSupportedAppVersions(featureName: String): List<String> {
         return featureState.firstOrNull { it.name == featureName }?.condition?.supportedAppVersions
             ?: emptyList()
     }
 
+    /**
+     * Check if the given app version is supported for a specific feature.
+     *
+     * This method retrieves all version rules defined for the feature
+     * (via [getSupportedAppVersions]) and evaluates them against the
+     * provided [currentVersion] using [SemverEvaluator].
+     *
+     * Behavior:
+     * - If no version constraints are defined, it defaults to **true**
+     *   (feature is allowed for all app versions).
+     * - If one or more constraints are defined, the feature is considered
+     *   supported if **any** of the constraints evaluate to true.
+     *
+     * Example usage:
+     * ```
+     * val isSupported = molibn.isSupportedAppVersion("feature_x", "2.1.0")
+     * ```
+     *
+     * @param featureName the name of the feature flag to check.
+     * @param currentVersion the current application version string (e.g., "2.0.1").
+     * @return true if the current version satisfies at least one constraint,
+     *         false otherwise.
+     */
     fun isSupportedAppVersion(featureName: String, currentVersion: String): Boolean {
         val supportedAppVersions = getSupportedAppVersions(featureName)
         if (supportedAppVersions.isEmpty()) return true // no restriction → allow by default

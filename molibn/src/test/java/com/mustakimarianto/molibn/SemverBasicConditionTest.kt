@@ -6,11 +6,11 @@ import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue
 import org.junit.Test
 
-class SemverConditionTest : BaseMolibnTest() {
+class SemverBasicConditionTest : BaseMolibnTest() {
     private val currentVersion = "1.0.0"
 
     @Test
-    fun `return true for greater than or equal condition`() {
+    fun `return true for gte condition`() {
         with(molibn) {
             val featureName = "test_feature1"
             val model = FeatureModel(
@@ -28,7 +28,7 @@ class SemverConditionTest : BaseMolibnTest() {
     }
 
     @Test
-    fun `return false for greater than or equal condition`() {
+    fun `return false for gte condition`() {
         with(molibn) {
             val featureName = "test_feature2"
             val model = FeatureModel(
@@ -46,7 +46,7 @@ class SemverConditionTest : BaseMolibnTest() {
     }
 
     @Test
-    fun `return true for greater than condition`() {
+    fun `return true for gt condition`() {
         with(molibn) {
             val featureName = "test_feature3"
             val model = FeatureModel(
@@ -64,7 +64,7 @@ class SemverConditionTest : BaseMolibnTest() {
     }
 
     @Test
-    fun `return false for greater than condition`() {
+    fun `return false for gt condition`() {
         with(molibn) {
             val featureName = "test_feature4"
             val model = FeatureModel(
@@ -82,7 +82,7 @@ class SemverConditionTest : BaseMolibnTest() {
     }
 
     @Test
-    fun `return true for less than or equal condition`() {
+    fun `return true for lte condition`() {
         with(molibn) {
             val featureName = "test_feature5"
             val model = FeatureModel(
@@ -100,7 +100,7 @@ class SemverConditionTest : BaseMolibnTest() {
     }
 
     @Test
-    fun `return false for less than or equal condition`() {
+    fun `return false for lte condition`() {
         with(molibn) {
             val featureName = "test_feature6"
             val model = FeatureModel(
@@ -118,7 +118,7 @@ class SemverConditionTest : BaseMolibnTest() {
     }
 
     @Test
-    fun `return true for less than condition`() {
+    fun `return true for lt condition`() {
         with(molibn) {
             val featureName = "test_feature7"
             val model = FeatureModel(
@@ -135,7 +135,7 @@ class SemverConditionTest : BaseMolibnTest() {
     }
 
     @Test
-    fun `return false for less than condition`() {
+    fun `return false for lt condition`() {
         with(molibn) {
             val featureName = "test_feature8"
             val model = FeatureModel(
