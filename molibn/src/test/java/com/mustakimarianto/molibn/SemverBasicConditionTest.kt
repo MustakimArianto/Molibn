@@ -223,4 +223,44 @@ class SemverBasicConditionTest : BaseMolibnTest() {
             assertFalse(isSupportedAppVersion(featureName, currentVersion))
         }
     }
+
+    @Test
+    fun `return true for combination condition`() {
+        with(molibn) {
+            val featureName = "test_feature13"
+            val model = FeatureModel(
+                name = featureName,
+                enabled = true,
+                condition = ConditionModel(
+                    supportedApiLevels = listOf(),
+                    supportedAppVersions = listOf(
+                        "<=0.7.0", "1.0.0", "1.3.0-1.5.0", ">=1.8.0"
+                    )
+                )
+            )
+
+            saveSingleFeature(model)
+            assertTrue(isSupportedAppVersion(featureName, currentVersion))
+        }
+    }
+
+    @Test
+    fun `return false for combination condition`() {
+        with(molibn) {
+            val featureName = "test_feature14"
+            val model = FeatureModel(
+                name = featureName,
+                enabled = true,
+                condition = ConditionModel(
+                    supportedApiLevels = listOf(),
+                    supportedAppVersions = listOf(
+                        "<=0.7.0", "0.9.0", "1.3.0-1.5.0", ">=1.8.0"
+                    )
+                )
+            )
+
+            saveSingleFeature(model)
+            assertFalse(isSupportedAppVersion(featureName, currentVersion))
+        }
+    }
 }

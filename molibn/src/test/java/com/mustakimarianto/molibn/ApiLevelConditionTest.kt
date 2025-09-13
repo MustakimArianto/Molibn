@@ -228,4 +228,40 @@ class ApiLevelConditionTest : BaseMolibnTest() {
             assertFalse(isSupportedApiLevel(featureName))
         }
     }
+
+    @Test
+    fun `return true for combination condition`() {
+        with(molibn) {
+            val featureName = "test_feature13"
+            val model = FeatureModel(
+                name = featureName,
+                enabled = true,
+                condition = ConditionModel(
+                    supportedApiLevels = listOf("<=23", "29", "31-33", ">=34"),
+                    supportedAppVersions = listOf()
+                )
+            )
+
+            saveSingleFeature(model)
+            assertTrue(isSupportedApiLevel(featureName))
+        }
+    }
+
+    @Test
+    fun `return false for combination condition`() {
+        with(molibn) {
+            val featureName = "test_feature13"
+            val model = FeatureModel(
+                name = featureName,
+                enabled = true,
+                condition = ConditionModel(
+                    supportedApiLevels = listOf("<=23", "28", "31-33", ">=34"),
+                    supportedAppVersions = listOf()
+                )
+            )
+
+            saveSingleFeature(model)
+            assertFalse(isSupportedApiLevel(featureName))
+        }
+    }
 }
