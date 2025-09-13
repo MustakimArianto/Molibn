@@ -1,20 +1,17 @@
 package com.mustakimarianto.molibn
 
 import android.content.Context
-import com.mustakimarianto.molibn.condition.SemverEvaluator
-import com.mustakimarianto.molibn.core.SdkProvider
+import com.mustakimarianto.molibn.managers.CacheManager
+import com.mustakimarianto.molibn.managers.FeatureManager
 import com.mustakimarianto.molibn.model.FeatureModel
 import com.mustakimarianto.molibn.model.MolibnConfigModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 
 class Molibn private constructor(config: MolibnConfigModel) {
-    // Mutable list of current features
-    private val featureState = mutableListOf<FeatureModel>()
-
-    // Flows for reactive observation
-    private val flagStates = mutableMapOf<String, MutableStateFlow<Boolean>>()
+    private val featureManager = FeatureManager()
+    private val cacheManager: CacheManager? =
+        if (config.cacheEnabled) CacheManager(config.context) else null
 
     companion object {
         @Volatile
@@ -33,214 +30,92 @@ class Molibn private constructor(config: MolibnConfigModel) {
         }
 
         // Initialize state flows for all feature from featureState
-        featureState.forEach { feature ->
-            flagStates[feature.name] = MutableStateFlow(feature.enabled)
-        }
-    }
-
-    /**
-     * Check if a specific feature is enabled
-     */
-    fun isEnabled(flag: String): Boolean {
-        return featureState
-            .find { it.name == flag }
-            ?.enabled ?: false
-    }
-
-    /**
-     * Get all feature
-     */
-    fun getAllFeatures(): List<FeatureModel> {
-        return featureState
-    }
-
-    /**
-     * Get a specific feature flag value with default fallback
-     */
-    fun getFeature(flag: String, defaultValue: Boolean = false): Boolean {
-        return featureState
-            .find { it.name == flag }
-            ?.enabled ?: defaultValue
-    }
-
-    /**
-     * Observe changes to a specific feature
-     */
-    fun observeFeature(flag: String): Flow<Boolean> {
-        val feature = featureState.find { it.name == flag }
-        val flow = flagStates.getOrPut(flag) {
-            MutableStateFlow(feature?.enabled ?: false)
-        }
-        return flow.asStateFlow()
-    }
-
-    /**
-     * Get all features that are currently enabled
-     */
-    fun getEnabledFeatures(): List<FeatureModel> {
-        return featureState.filter { it.enabled }.toList()
-    }
-
-    /**
-     * Get all features that are currently disabled
-     */
-    fun getDisabledFeatures(): List<FeatureModel> {
-        return featureState.filter { !it.enabled }.toList()
-    }
-
-    fun getSupportedApiLevel(featureName: String): List<String> {
-        return featureState.firstOrNull { it.name == featureName }?.condition?.supportedApiLevels
-            ?: emptyList()
-    }
-
-    fun isSupportedApiLevel(featureName: String): Boolean {
-        val supportedApiLevels = getSupportedApiLevel(featureName)
-        if (supportedApiLevels.isEmpty()) return true // no restriction → allow by default
-
-        val currentSdk = SdkProvider.sdkInt
-
-        return supportedApiLevels.any { apiLevels ->
-            when {
-                apiLevels.startsWith(">=") -> {
-                    val min = apiLevels.removePrefix(">=").trim().toIntOrNull()
-                    min != null && currentSdk >= min
-                }
-
-                apiLevels.startsWith(">") -> {
-                    val min = apiLevels.removePrefix(">").trim().toIntOrNull()
-                    min != null && currentSdk > min
-
-                }
-
-                apiLevels.startsWith("<=") -> {
-                    val max = apiLevels.removePrefix("<=").trim().toIntOrNull()
-                    max != null && currentSdk <= max
-                }
-
-                apiLevels.startsWith("<") -> {
-                    val max = apiLevels.removePrefix("<").trim().toIntOrNull()
-                    max != null && currentSdk < max
-                }
-
-                "-" in apiLevels -> {
-                    val parts = apiLevels.split("-").mapNotNull { it.trim().toIntOrNull() }
-                    if (parts.size == 2) {
-                        val (min, max) = parts
-                        currentSdk in min..max
-                    } else {
-                        false
-                    }
-                }
-
-                else -> {
-                    val exact = apiLevels.trim().toIntOrNull()
-                    exact != null && currentSdk == exact
-                }
+        with(featureManager) {
+            featureState.forEach { feature ->
+                flagStates[feature.name] = MutableStateFlow(feature.enabled)
             }
         }
+
     }
 
-    /**
-     * Retrieve all supported app version conditions for a given feature.
-     *
-     * This method looks up a feature by its name and returns the list of semantic
-     * version constraints (e.g., `>=2.0.0`, `<3.0.0`, `1.2.3-beta`) that were
-     * defined in its [ConditionModel]. These constraints will later be evaluated
-     * by [SemverEvaluator] when checking if the current app version satisfies
-     * the feature's requirements.
-     *
-     * If the feature does not exist or has no app version conditions defined,
-     * this function returns an empty list.
-     *
-     * @param featureName the unique name of the feature flag to query.
-     * @return a list of semantic version conditions for the given feature,
-     *         or an empty list if none are defined.
-     */
+    /** See [FeatureManager.isEnabled] for details. */
+    fun isEnabled(flag: String): Boolean {
+        return featureManager.isEnabled(flag)
+    }
+
+    /** See [FeatureManager.getAllFeatures] for details. */
+    fun getAllFeatures(): List<FeatureModel> {
+        return featureManager.getAllFeatures()
+    }
+
+    /** See [FeatureManager.getFeature] for details. */
+    fun getFeature(flag: String, defaultValue: Boolean = false): Boolean {
+        return featureManager.getFeature(flag, defaultValue)
+    }
+
+    /** See [FeatureManager.observeFeature] for details. */
+    fun observeFeature(flag: String): Flow<Boolean> {
+        return featureManager.observeFeature(flag)
+    }
+
+    /** See [FeatureManager.getEnabledFeatures] for details. */
+    fun getEnabledFeatures(): List<FeatureModel> {
+        return featureManager.getEnabledFeatures()
+    }
+
+    /** See [FeatureManager.getDisabledFeatures] for details. */
+    fun getDisabledFeatures(): List<FeatureModel> {
+        return featureManager.getDisabledFeatures()
+    }
+
+    /** See [FeatureManager.getSupportedApiLevel] for details. */
+    fun getSupportedApiLevel(featureName: String): List<String> {
+        return featureManager.getSupportedApiLevel(featureName)
+    }
+
+    /** See [FeatureManager.isSupportedApiLevel] for details. */
+    fun isSupportedApiLevel(featureName: String): Boolean {
+        return featureManager.isSupportedApiLevel(featureName)
+    }
+
+    /** See [FeatureManager.getSupportedAppVersions] for details. */
     fun getSupportedAppVersions(featureName: String): List<String> {
-        return featureState.firstOrNull { it.name == featureName }?.condition?.supportedAppVersions
-            ?: emptyList()
+        return featureManager.getSupportedAppVersions(featureName)
     }
 
-    /**
-     * Check if the given app version is supported for a specific feature.
-     *
-     * This method retrieves all version rules defined for the feature
-     * (via [getSupportedAppVersions]) and evaluates them against the
-     * provided [currentVersion] using [SemverEvaluator].
-     *
-     * Behavior:
-     * - If no version constraints are defined, it defaults to **true**
-     *   (feature is allowed for all app versions).
-     * - If one or more constraints are defined, the feature is considered
-     *   supported if **any** of the constraints evaluate to true.
-     *
-     * Example usage:
-     * ```
-     * val isSupported = molibn.isSupportedAppVersion("feature_x", "2.1.0")
-     * ```
-     *
-     * @param featureName the name of the feature flag to check.
-     * @param currentVersion the current application version string (e.g., "2.0.1").
-     * @return true if the current version satisfies at least one constraint,
-     *         false otherwise.
-     */
+    /** See [FeatureManager.isSupportedAppVersion] for details. */
     fun isSupportedAppVersion(featureName: String, currentVersion: String): Boolean {
-        val supportedAppVersions = getSupportedAppVersions(featureName)
-        if (supportedAppVersions.isEmpty()) return true // no restriction → allow by default
-
-        return supportedAppVersions.any { versionRule ->
-            SemverEvaluator.evaluate(currentVersion, versionRule)
-        }
+        return featureManager.isSupportedAppVersion(featureName, currentVersion)
     }
 
-    /**
-     * Check if any features are enabled
-     */
+    /** See [FeatureManager.hasEnabledFeatures] for details. */
     fun hasEnabledFeatures(): Boolean {
-        return featureState.any { it.enabled }
+        return featureManager.hasEnabledFeatures()
     }
 
-    /**
-     * Clear all feature
-     */
+    /** See [FeatureManager.clearAllFlags] for details. */
     fun clearAllFlags() {
-        featureState.clear()
+        return featureManager.clearAllFlags()
     }
 
-    /**
-     * Save a single feature
-     */
+    /** See [FeatureManager.saveSingleFeature] for details. */
     fun saveSingleFeature(featureModel: FeatureModel) {
-        featureState.add(featureModel)
+        featureManager.saveSingleFeature(featureModel)
     }
 
-    /**
-     * Save multiple features
-     */
+    /** See [FeatureManager.saveMultipleFeature] for details. */
     fun saveMultipleFeature(featureModels: List<FeatureModel>) {
-        featureState.addAll(featureModels)
+        featureManager.saveMultipleFeature(featureModels)
     }
 
-    /**
-     * Update existing feature or insert if not exists
-     */
+    /** See [FeatureManager.updateFeature] for details. */
     fun updateFeature(featureModel: FeatureModel) {
-        val index = featureState.indexOfFirst { it.name == featureModel.name }
-        if (index >= 0) {
-            featureState[index] = featureModel
-        } else {
-            featureState.add(featureModel)
-        }
-
-        val flow = flagStates.getOrPut(featureModel.name) {
-            MutableStateFlow(featureModel.enabled)
-        }
-        flow.value = featureModel.enabled
+        featureManager.updateFeature(featureModel)
     }
 
+    /** See [CacheManager.loadCacheFeature] for details. */
     fun loadCachedFeatures() {
-        // Implementation for loading cached flags from SharedPreferences or Room
-        // This would merge cached values with the provided configuration
+        cacheManager?.loadCacheFeature()
     }
 
     class Builder(private val context: Context) {

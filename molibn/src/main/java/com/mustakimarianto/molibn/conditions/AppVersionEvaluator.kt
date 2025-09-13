@@ -1,15 +1,17 @@
-package com.mustakimarianto.molibn.condition
+package com.mustakimarianto.molibn.conditions
 
 import android.util.Log
 import java.util.Locale
 
 /**
- * Utility object to evaluate semantic version conditions against a given app version.
+ * Utility class to evaluate semantic version conditions against a given app version.
  *
  * Internal to the library — not part of the public API.
  */
-internal object SemverEvaluator {
-    private const val TAG = "SemverEvaluator"
+internal class AppVersionEvaluator() {
+    companion object {
+        private const val TAG = "SemverEvaluator"
+    }
 
     /**
      * Evaluate whether the given `appVersion` satisfies a semantic version condition.
