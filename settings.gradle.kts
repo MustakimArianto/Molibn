@@ -21,4 +21,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "Molibn"
 include(":app")
-include(":molibn")
+include(":molibn:core")
+include(":molibn:compose")

@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.mustakimarianto.molibn"
+    namespace = "com.mustakimarianto.molibn.core"
     compileSdk = 36
 
     defaultConfig {

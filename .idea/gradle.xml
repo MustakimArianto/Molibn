@@ -12,6 +12,8 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/molibn" />
+            <option value="$PROJECT_DIR$/molibn/compose" />
+            <option value="$PROJECT_DIR$/molibn/core" />
           </set>
         </option>
       </GradleProjectSettings>
