@@ -120,7 +120,7 @@ class App : Application() {
                     it.updateFeature(
                         FeatureModel(
                             "feature4", true, ConditionModel(
-                                supportedApiLevels = listOf("<29"),
+                                supportedApiLevels = listOf("<=29"),
                                 supportedAppVersions = listOf(">=1.0.6")
                             )
                         )
@@ -136,8 +136,6 @@ class App : Application() {
                     )
                 }
             }
-            it.clearAllFlags()
-            Log.d(TAG, "All features after clear: ${it.getAllFeatures()}")
         }
     }
 }

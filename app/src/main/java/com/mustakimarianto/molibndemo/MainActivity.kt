@@ -11,19 +11,26 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.mustakimarianto.molibn.compose.DebugPanelHost
+import com.mustakimarianto.molibn.compose.utils.PanelButtonPosition
 import com.mustakimarianto.molibndemo.ui.theme.MolibnTheme
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val molibn = (application as App).molibn!!
+
         enableEdgeToEdge()
         setContent {
             MolibnTheme {
-                Scaffold( modifier = Modifier.fillMaxSize() ) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    DebugPanelHost(molibn, buttonPosition = PanelButtonPosition.BOTTOM_RIGHT, true) {
+                        Greeting(
+                            name = "Android",
+                            modifier = Modifier.padding(innerPadding)
+                        )
+                    }
                 }
             }
         }
